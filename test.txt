@@ -1,0 +1,17 @@
+LOGROOT="/var/log/test_log4j"
+LOG="$LOGROOT/"
+ARCHIVE="$LOGROOT/Archive/$(date -d "7 days ago" '+%d-%m-%y')_To_$(date +"%d-%m-%Y")"
+
+mkdir -p $ARCHIVE
+
+find $LOG/* -mtime +7 -type f -print -exec cp {} $ARCHIVE \;
+
+find $LOG/* -mtime +7 -type f -exec bash -c 'diff $t.out -rq --no-dereference "$@" "/var/log/test_log4j/Archive/$(date -d "7 days ago" '+%d-%m-%y')_To_$(date +"%d-%m-%Y")"| grep "[<>]" | sed "s/>/\t/g;s/<//g"' bash {} \;
+
+tar -czvf $ARCHIVE/$(date -d "7 days ago" '+%d-%m-%y')_To_$(date +"%d-%m-%Y").tar.gz $ARCHIVE
+
+find $LOGROOT/* -mtime +30 -type f -print -exec rm -R {} \; 
+
+echo "Remote Host Done"
+
+exit 0
